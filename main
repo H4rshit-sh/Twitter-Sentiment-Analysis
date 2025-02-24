@@ -1,0 +1,46 @@
+import tweepy
+from textblob import TextBlob
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#setup auth
+consumer_key= '6JZHbkQGzCOF7lGAKFs2A7BRM'
+consumer_secret= 'jy4cQbcrWT1CRiH1So8P2AajyT4ks2UicaYjqQEIB1SqXE6EjR'
+bearer_token = 'AAAAAAAAAAAAAAAAAAAAAF%2F3yQEAAAAA7bLhi8v0JDOrWaMLDQz9qZik6sw%3DiS0xCp90nctnqPbGNYdWL7AW9lmrTFML8KeM5K3Vr0vQVcTZkR'
+access_token = '1883423455955288064-Cd8UqLaVDV10r3YYX7HjVTP128pbxm'
+access_secret= 'WgrL9Lr3h0qgWpkzKOkajtr748aCShpcsumfLtVx1rWsK'
+
+#authenticating 
+auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
+auth.set_access_token(access_token,access_secret)
+api = tweepy.API(auth , wait_on_rate_limit= True)
+
+#get sentiment func
+def get_sentiment(tweet):
+        analysis = TextBlob(tweet.text)
+        if analysis.sentiment.polarity > 0:
+            return "Positive"
+        elif analysis.sentiment.polarity == 0:
+            return 'Neutral'
+        else:
+            return 'Negative'
+
+#fetching tweeets
+keyword = input("enter keyword :")
+key_count = int(input("count :"))
+public_tweets = api.search_tweets(keyword, count = key_count)
+
+for tweet in public_tweets:
+    sentiment = get_sentiment(tweet.text)
+    print(f"Tweet: {tweet.text}")
+    print(f"Sentiment: {sentiment}")
+    print("-" * 50)
+
+df = pd.DataFrame({'Tweet': [tweet.text for tweet in public_tweets], 'Sentiment': sentiment})
+
+sentiment_count = df['Sentiment'].value_counts()
+sentiment_count.plot( kind='bar', color = ['green','blue','red'])
+plt.title =('Sentiment distribution')
+plt.xlabel = ('Sentiment')
+plt.ylabel= ('Frequncy')
+plt.show()
